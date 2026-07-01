@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>牌库 - 完整图鉴 - Aetheris Tarot</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        body { background-color: #131314; color: #e5e2e3; font-family: 'Manrope', sans-serif; }
+        h1, h2, h3 { font-family: 'EB Garamond', serif; }
+        .tarot-card {
+            border: 1px solid #d4af37;
+            background: linear-gradient(to bottom, rgba(32,31,32,0.8), rgba(28,27,28,0.9));
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        .tarot-card:hover {
+            box-shadow: 0 0 30px rgba(212,175,55,0.4);
+            transform: translateY(-5px);
+            border-color: #ffe088;
+        }
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, #f2ca50, transparent);
+        }
+        .filter-btn {
+            transition: all 0.3s ease;
+        }
+        .filter-btn.active {
+            background-color: #f2ca50;
+            color: #3c2f00;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen relative">
+    <!-- Navigation -->
+    <header class="bg-[#131314]/80 backdrop-blur-xl shadow-lg fixed top-0 w-full z-50 border-b border-[#4d4635]/30 flex justify-between items-center px-6 md:px-16 h-16">
+        <a href="index.html" class="font-headline-md text-2xl text-[#f2ca50] tracking-tighter no-underline">Aetheris Tarot</a>
+        <nav class="hidden md:flex gap-8">
+            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors font-label-md" href="index.html">首页</a>
+            <a class="text-[#f2ca50] border-b-2 border-[#f2ca50] font-label-md" href="library.html">牌库</a>
+            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors font-label-md" href="draw.html">抽牌</a>
+        </nav>
+    </header>
+
+    <main class="relative z-10 pt-24 pb-32">
+        <!-- Hero -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16 mb-12">
+            <div class="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden border border-[#f2ca50]/20">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#131314] via-[#131314]/60 to-transparent z-10"></div>
+                <img class="absolute inset-0 w-full h-full object-cover opacity-50" src="./png/0. 愚者 (The Fool)-1.jpg" alt="Library Hero"/>
+                <div class="absolute bottom-0 left-0 p-8 z-20">
+                    <h1 class="text-4xl md:text-5xl text-[#f2ca50] mb-2">完整图鉴</h1>
+                    <p class="text-[#d0c5af] text-lg">78 张塔罗牌全览</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter Buttons -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16 mb-10">
+            <div class="flex flex-wrap gap-3 justify-center">
+                <button class="filter-btn active px-5 py-2 rounded-full border border-[#f2ca50] text-[#f2ca50] text-sm uppercase tracking-wider" data-filter="all">全部</button>
+                <button class="filter-btn px-5 py-2 rounded-full border border-[#f2ca50]/40 text-[#d0c5af] text-sm uppercase tracking-wider hover:border-[#f2ca50]" data-filter="major">大阿卡纳</button>
+                <button class="filter-btn px-5 py-2 rounded-full border border-[#f2ca50]/40 text-[#d0c5af] text-sm uppercase tracking-wider hover:border-[#f2ca50]" data-filter="wands">权杖</button>
+                <button class="filter-btn px-5 py-2 rounded-full border border-[#f2ca50]/40 text-[#d0c5af] text-sm uppercase tracking-wider hover:border-[#f2ca50]" data-filter="cups">圣杯</button>
+                <button class="filter-btn px-5 py-2 rounded-full border border-[#f2ca50]/40 text-[#d0c5af] text-sm uppercase tracking-wider hover:border-[#f2ca50]" data-filter="swords">宝剑</button>
+                <button class="filter-btn px-5 py-2 rounded-full border border-[#f2ca50]/40 text-[#d0c5af] text-sm uppercase tracking-wider hover:border-[#f2ca50]" data-filter="pentacles">星币</button>
+            </div>
+        </section>
+
+        <!-- Major Arcana -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16 mb-16" data-category="major">
+            <h2 class="section-title text-3xl text-[#f2ca50] mb-8">大阿卡纳 · Major Arcana</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                <!-- Major Arcana cards -->
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/0. 愚者 (The Fool)-1.jpg" alt="The Fool"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">0. The Fool</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Isolated The Magician Card-1.jpg" alt="The Magician"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">I. The Magician</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Isolated The High Priestess Card-1.jpg" alt="The High Priestess"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">II. The High Priestess</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Isolated The Empress Card-1.jpg" alt="The Empress"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">III. The Empress</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Emperor (IV)-1.jpg" alt="The Emperor"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">IV. The Emperor</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Hierophant (V)-1.jpg" alt="The Hierophant"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">V. The Hierophant</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Lovers (VI)-1.jpg" alt="The Lovers"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">VI. The Lovers</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Chariot (VII)-1.jpg" alt="The Chariot"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">VII. The Chariot</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Justice (VIII)-1.jpg" alt="Justice"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">VIII. Justice</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Hermit (IX)-1.jpg" alt="The Hermit"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">IX. The Hermit</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Strength (XI)-1.jpg" alt="Strength"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XI. Strength</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Hanging Man (XII)-1.jpg" alt="The Hanged Man"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XII. The Hanged Man</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Death (XIII)-1.jpg" alt="Death"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XIII. Death</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Temperance (XIV)-1.jpg" alt="Temperance"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XIV. Temperance</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Devil (XV)-1.jpg" alt="The Devil"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XV. The Devil</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Tower (XVI)-1.jpg" alt="The Tower"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XVI. The Tower</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Star (XVII)-1.jpg" alt="The Star"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XVII. The Star</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Moon (XVIII)-1.jpg" alt="The Moon"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XVIII. The Moon</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Sun (XIX)-1.jpg" alt="The Sun"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XIX. The Sun</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Judgement (XX)-1.jpg" alt="Judgement"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XX. Judgement</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="major">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/World (XXI)-1.jpg" alt="The World"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">XXI. The World</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Wands -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16 mb-16" data-category="wands">
+            <h2 class="section-title text-3xl text-[#f2ca50] mb-8">权杖 · Wands</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="wands">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/权杖Ace-1.jpg" alt="Ace of Wands"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Ace of Wands</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="wands">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/King of Wands-1.jpg" alt="King of Wands"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">King of Wands</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="wands">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Queen of Wands-1.jpg" alt="Queen of Wands"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Queen of Wands</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="wands">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Knight of Wands-1.jpg" alt="Knight of Wands"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Knight of Wands</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="wands">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Page of Wands-1.jpg" alt="Page of Wands"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Page of Wands</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cups -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16 mb-16" data-category="cups">
+            <h2 class="section-title text-3xl text-[#f2ca50] mb-8">圣杯 · Cups</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="cups">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/King of Cups-1.jpg" alt="King of Cups"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">King of Cups</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="cups">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Queen of Cups-1.jpg" alt="Queen of Cups"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Queen of Cups</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="cups">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Knight of Cups-1.jpg" alt="Knight of Cups"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Knight of Cups</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="cups">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Page of Cups-1.jpg" alt="Page of Cups"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Page of Cups</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Swords -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16 mb-16" data-category="swords">
+            <h2 class="section-title text-3xl text-[#f2ca50] mb-8">宝剑 · Swords</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="swords">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/King of Swords-1.jpg" alt="King of Swords"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">King of Swords</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="swords">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Queen of Swords-1.jpg" alt="Queen of Swords"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Queen of Swords</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="swords">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Knight of Swords-1.jpg" alt="Knight of Swords"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Knight of Swords</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="swords">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Page of Swords-1.jpg" alt="Page of Swords"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Page of Swords</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pentacles -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16 mb-16" data-category="pentacles">
+            <h2 class="section-title text-3xl text-[#f2ca50] mb-8">星币 · Pentacles</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="pentacles">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/King of Pentacles-1.jpg" alt="King of Pentacles"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">King of Pentacles</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="pentacles">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Queen of Pentacles-1.jpg" alt="Queen of Pentacles"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Queen of Pentacles</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="pentacles">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Knight of Pentacles-1.jpg" alt="Knight of Pentacles"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Knight of Pentacles</span>
+                </div>
+                <div class="tarot-card rounded-lg p-3 flex flex-col items-center group" data-category="pentacles">
+                    <div class="w-full aspect-[2/3] relative rounded overflow-hidden border border-[#4d4635]/50 mb-3 bg-[#2a2a2b]">
+                        <img class="object-cover w-full h-full opacity-90 group-hover:opacity-100 transition-opacity" src="./png/Page of Pentacles-1.jpg" alt="Page of Pentacles"/>
+                    </div>
+                    <span class="text-[#f2ca50] text-sm text-center font-headline-md">Page of Pentacles</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Note -->
+        <section class="w-full max-w-7xl mx-auto px-6 md:px-16">
+            <div class="text-center py-10 border-t border-[#4d4635]/30">
+                <p class="text-[#d0c5af] text-sm">命运之轮（X）的图片暂未收录</p>
+                <p class="text-[#4d4635] text-xs mt-2">所有图片来自 Aetheris Tarot 典藏</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.dataset.filter;
+                document.querySelectorAll('[data-category]').forEach(section => {
+                    if (filter === 'all') {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = section.dataset.category === filter ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

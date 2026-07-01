@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html class="dark" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>命运启示 - Aetheris Tarot</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Manrope:wght@300;400;600&display=swap" rel="stylesheet"/>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #000;
+            color: #e5e2e3;
+            font-family: 'Cormorant Garamond', serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        h1, h2, h3, h4 { font-family: 'Cinzel Decorative', serif; }
+
+        /* ─── WebGL 虚空背景 ─── */
+        #void-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ─── 卡牌呼吸光晕 ─── */
+        .glowing-shadow { box-shadow: 0 0 40px rgba(212, 175, 55, 0.4); }
+        @keyframes breatheGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.3), 0 0 60px rgba(212, 175, 55, 0.1); }
+            50% { box-shadow: 0 0 60px rgba(212, 175, 55, 0.6), 0 0 120px rgba(212, 175, 55, 0.25); }
+        }
+        .card-breathing { animation: breatheGlow 3s ease-in-out infinite; }
+
+        /* ─── 逐段揭示 ─── */
+        .fade-in-up {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+        }
+        .fade-in-up.visible { opacity: 1; transform: translateY(0); }
+
+        /* ─── 动态分割线 ─── */
+        .draw-line {
+            width: 0; height: 1px;
+            background: linear-gradient(to right, transparent, #d4af37, transparent);
+            transition: width 1.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            margin: 16px 0;
+        }
+        .draw-line.visible { width: 100%; }
+
+        /* ─── 打字机光标 ─── */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px; height: 0.9em;
+            background-color: #d4af37;
+            animation: blink 0.8s step-end infinite;
+            vertical-align: baseline;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ─── 金色粒子 ─── */
+        .sparkle-particle {
+            position: fixed;
+            border-radius: 50%;
+            background: #f2ca50;
+            pointer-events: none;
+            z-index: 5;
+            animation: sparkleFloat 3s ease-out forwards;
+        }
+        @keyframes sparkleFloat {
+            0% { opacity: 0.8; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(0); }
+        }
+
+        /* ─── 卡牌入场 ─── */
+        #card-container {
+            transition: opacity 1.2s ease, transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* ─── 神秘装饰符文 ─── */
+        .rune-divider {
+            text-align: center;
+            color: rgba(242,202,80,0.25);
+            font-size: 0.8rem;
+            letter-spacing: 1em;
+            font-family: 'Cinzel Decorative', serif;
+        }
+
+        /* ─── AI 解读区 ─── */
+        .ai-insight {
+            border-left: 2px solid rgba(242,202,80,0.3);
+            padding: 1.2rem 1.5rem;
+            background: rgba(242,202,80,0.03);
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            line-height: 1.7;
+        }
+        .ai-insight strong {
+            color: #f2ca50;
+            font-style: normal;
+            font-weight: 600;
+        }
+        .keyword-tag {
+            display: inline-block;
+            padding: 4px 14px;
+            border: 1px solid rgba(242,202,80,0.3);
+            border-radius: 20px;
+            color: #f2ca50;
+            font-size: 0.85rem;
+            margin: 3px 4px;
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col">
+
+    <!-- WebGL Void Canvas -->
+    <canvas id="void-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-md border-b border-[#f2ca50]/10">
+        <div class="flex justify-between items-center px-6 md:px-16 py-4 max-w-7xl mx-auto">
+            <a href="index.html" class="text-xl md:text-2xl text-[#f2ca50] tracking-widest no-underline" style="font-family:'Cinzel Decorative',serif;">Aetheris Tarot</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a class="text-[#d0c5af]/70 hover:text-[#f2ca50] transition-colors uppercase text-sm tracking-widest" href="index.html">首页</a>
+                <a class="text-[#d0c5af]/70 hover:text-[#f2ca50] transition-colors uppercase text-sm tracking-widest" href="library.html">牌库</a>
+                <a class="text-[#f2ca50] border-b border-[#f2ca50] pb-1 uppercase text-sm tracking-widest" href="draw.html">抽牌</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-28 md:pt-32 pb-24 flex items-center justify-center px-6 relative z-10">
+        <div class="max-w-7xl w-full mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-start">
+            
+            <!-- 卡牌 (左) -->
+            <div class="col-span-1 md:col-span-5 flex justify-center md:sticky md:top-32">
+                <div class="w-full max-w-[380px] aspect-[2/3] transform translate-y-10 opacity-0" id="card-container">
+                    <div class="w-full h-full bg-[#0d0d0e] rounded-xl border border-[#f2ca50]/60 p-2 flex flex-col glowing-shadow card-breathing">
+                        <div class="flex-grow m-2 relative overflow-hidden rounded-md border border-[#4d4635]/50">
+                            <img class="object-cover w-full h-full opacity-90" id="card-image" src="" alt="Card"/>
+                        </div>
+                        <div class="text-center py-4">
+                            <h2 class="text-2xl md:text-3xl text-[#f2ca50]" id="card-number"></h2>
+                            <h3 class="text-lg md:text-xl text-[#d8baff]/90 mt-1" id="card-name"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 解读文字 (右) -->
+            <div class="col-span-1 md:col-span-7 flex flex-col justify-center py-8">
+                <div class="space-y-5">
+                    <!-- 打字机标题 -->
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl text-[#f2ca50] flex items-center leading-tight" style="font-family:'Cinzel Decorative',serif;">
+                        <span id="title-text"></span><span class="typewriter-cursor" id="typewriter-cursor"></span>
+                    </h1>
+                    <div class="draw-line" id="divider-1"></div>
+                    
+                    <!-- 关键词标签 -->
+                    <div class="fade-in-up flex flex-wrap gap-1" id="keywords-row"></div>
+
+                    <!-- 解读正文 - 逐段揭示 -->
+                    <div class="space-y-6 mt-8">
+                        <!-- 第一段：牌面含义 -->
+                        <p class="text-lg md:text-xl text-[#d0c5af] leading-relaxed fade-in-up font-light" id="text-line-1" style="font-family:'Cormorant Garamond',serif;"></p>
+
+                        <!-- 第二段：深层指引 -->
+                        <div class="fade-in-up" id="text-line-2-wrapper">
+                            <div class="rune-divider">✦ ✦ ✦</div>
+                            <p class="text-lg md:text-xl text-[#d0c5af] leading-relaxed mt-3 font-light" id="text-line-2" style="font-family:'Cormorant Garamond',serif;"></p>
+                        </div>
+
+                        <div class="draw-line" id="divider-2"></div>
+
+                        <!-- ✦ AI 深度解读 ✦ -->
+                        <div class="fade-in-up" id="text-line-3-wrapper">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="text-[#f2ca50] text-sm uppercase tracking-[0.3em]" style="font-family:'Cinzel Decorative',serif;">✦ 灵境智谕 ✦</span>
+                                <div class="flex-1 h-px bg-gradient-to-r from-[#f2ca50]/40 to-transparent"></div>
+                            </div>
+                            <div class="ai-insight" id="text-line-3"></div>
+                        </div>
+
+                        <!-- 第四段：行动指引 -->
+                        <div class="fade-in-up" id="text-line-4-wrapper">
+                            <div class="flex items-center gap-3 mb-3 mt-6">
+                                <span class="text-[#f2ca50]/60 text-xs uppercase tracking-[0.2em]" style="font-family:'Cinzel Decorative',serif;">⚜ 行动指引 ⚜</span>
+                                <div class="flex-1 h-px bg-gradient-to-r from-[#f2ca50]/20 to-transparent"></div>
+                            </div>
+                            <p class="text-lg text-[#d8baff]/80 leading-relaxed font-light" id="text-line-4" style="font-family:'Cormorant Garamond',serif;"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部按钮 -->
+                <div class="mt-12 pt-8 flex justify-end fade-in-up" id="action-area">
+                    <a href="draw.html" class="px-8 py-3 border border-[#f2ca50]/60 text-[#f2ca50] tracking-widest rounded-full hover:bg-[#f2ca50]/10 hover:shadow-[0_0_30px_rgba(242,202,80,0.2)] transition-all duration-500 uppercase text-sm" style="font-family:'Cinzel Decorative',serif;">
+                        ⟳ 再抽一张
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+    /* ============================================================
+       21 张大阿卡纳 - 完整 AI 深度解读库
+       ============================================================ */
+    const readings = {
+        '愚者': {
+            keywords: ['新的开始', '自由精神', '冒险', '纯真', '无限可能'],
+            meaning: '愚者立于悬崖之巅，行囊中只装着寥寥无几的经验，却满怀对未知的无限憧憬。这张牌象征着一段全新旅程的起点——你被召唤放下过往的重负，以赤子之心拥抱前方的未知。',
+            insight: '在虚空的低语中，愚者提醒你：真正的智慧始于承认自己一无所知。此刻的"天真"不是弱点，而是敢于踏入黑暗的勇气。你内心深处那股无法名状的冲动，正是命运在叩门。放下过度分析，相信你的直觉——它知道的比理性更多。宇宙正在为你铺展一条未经绘制的地图，而你，是第一个踏上这条路的人。',
+            advice: '跨出舒适区，但并非鲁莽。带着觉知去冒险，让好奇心引领你，但请在迈步前倾听内心的声音。适合开启新项目、旅行或学习全新领域。'
+        },
+        '魔术师': {
+            keywords: ['创造力', '自信', '技巧', '显化', '资源整合'],
+            meaning: '魔术师立于圣坛之前，四元素齐聚桌面，他手指指向天空，连接着"上"与"下"的通道。你拥有将愿景变为现实所需的一切工具——此刻，宇宙的能量正通过你流动。',
+            insight: '你是自己命运的炼金术士。魔术师的出现宣告一个强大的创造周期已经开启：你手中的每一种资源——无论是技能、人脉还是智慧——都在此刻被赋予了神圣的使命。不要低估自己的能力，你所寻求的力量早已在你之内。集中意志，清晰意图，然后行动。宇宙会回应你的专注。',
+            advice: '善用你已拥有的资源，专注实现一个具体目标。这是行动的时刻，而非犹豫的时刻。表达自己，展示才华，世界正在等待你的创造。'
+        },
+        '女祭司': {
+            keywords: ['直觉', '潜意识', '内在智慧', '神秘', '静默'],
+            meaning: '女祭司端坐于神殿的帷幕之前，手持律法卷轴，脚边是弯月。她是所有秘密的守护者，是连接意识与潜意识的桥梁。此刻，答案不在外界，而在你的内心深处。',
+            insight: '在这寂静的虚空之中，女祭司揭示了最深的真理：真正的知识并非来自外界的求证，而是源于内心的觉醒。你一直在寻找的答案，早已写在你的灵魂之中。现在，请停止向外追寻，转而向内聆听。那些在静默中浮现的直觉、梦境中的隐喻、不经意间的即视感——都是她在向你低语。信任比理解更重要。',
+            advice: '花时间独处与冥想。记录你的梦境和直觉闪现。在做出决定前，先静下来听听内心的声音。答案会在静默中显现。'
+        },
+        '女皇': {
+            keywords: ['丰饶', '滋养', '自然', '母性', '感官愉悦'],
+            meaning: '女皇端坐于丰收的麦田之中，头戴星辰冠冕，身后的瀑布象征着生命的源源不绝。她代表着大地之母的丰饶能量——成长、繁荣与感官的喜悦。',
+            insight: '生命正在你体内和周围蓬勃生长。女皇的能量邀请你与自然的节奏重新连接——去感受泥土的温度、花朵的芬芳、食物的滋味。这不是沉迷享乐，而是通过感官体验来唤醒你生命力的源泉。你值得被滋养，也值得享受努力的果实。让自己接受馈赠，同时慷慨地与他人分享你的丰盛。',
+            advice: '花时间在大自然中漫步，照顾自己的身体和感官需求。如果你在孕育某个项目或想法，这是让它茁壮成长的好时机。接受美与馈赠。'
+        },
+        '皇帝': {
+            keywords: ['权威', '秩序', '稳定', '领导力', '结构'],
+            meaning: '皇帝稳坐在王座之上，象征着他已建立了一套稳固的体系。他是秩序与结构的化身，提醒你建立边界、制定规则，以坚定的意志守护你的王国。',
+            insight: '真正的权威并非来自对他人的控制，而是源于对自我的主宰。皇帝的能量为你带来一种沉稳的力量——当你感到生活陷入混沌，他呼唤你重新建立秩序。设定清晰的边界，制定可行的计划，用纪律取代冲动。在慈悲与坚定之间找到平衡，你将成为自己命运的真正君主。',
+            advice: '整理你的生活和工作空间，建立清晰的规则和日程。在需要展现领导力时勇敢站出来。对重要的事情说"是"，对消耗你的事情说"不"。'
+        },
+        '教皇': {
+            keywords: ['传统', '智慧', '精神指引', '信仰', '传承'],
+            meaning: '教皇端坐于圣殿之中，手持三重十字权杖，向信徒传递精神的智慧。他代表着传统价值、精神导师以及来自更高智慧的教导。',
+            insight: '有些道路已经被前人走过，他们的智慧化作了此刻你可以依循的灯塔。教皇的出现提醒你：不必事事亲历亲为才能获得智慧。向那些在你之前行走的导师学习——无论是书籍中的哲思、文化中的传统，还是现实中你尊敬的长者。他们的经验是你前进路上的明灯。同时，也问问自己：你正在成为谁的榜样？',
+            advice: '寻找一位导师或值得信赖的顾问。参加课程、研讨会或加入有共同价值观的团体。尊重传统，但保持独立思考。'
+        },
+        '恋人': {
+            keywords: ['爱情', '和谐', '选择', '关系', '价值观'],
+            meaning: '恋人之牌象征着人生中最重要的选择——不是对错的选择，而是基于内心真实价值观的抉择。在这张牌中，天使的祝福照耀着两个人，象征着和谐的连接。',
+            insight: '恋人之牌并非仅关于爱情，它更是一张关于"真实选择"的牌。你正站在一个十字路口，两个选项都在向你呼唤。真正的挑战在于：你是否有勇气选择那个与内心最深处的价值观一致的方向，即使它看起来更艰难？当你的选择源于爱与真实，而非恐惧与义务，宇宙会为你开路。让你的心成为最终的指南针。',
+            advice: '在重大决定面前，不要仅用头脑分析。感受每个选项在你身体中的反应。哪个选择让你的心更加舒展？那就是你的答案。'
+        },
+        '战车': {
+            keywords: ['意志力', '决心', '胜利', '专注', '征服'],
+            meaning: '战车上的勇士没有缰绳——他靠纯粹的意志力驾驭两只方向相逆的狮身人面兽。这象征着通过强大的自律与专注，将对立的力量整合为前进的动力。',
+            insight: '你内在拥有征服一切困难的力量。战车承载着胜利者的能量——但这份胜利并非来自外界的认可，而是源于内在冲突的和解。那两只方向相反的兽，代表着你内心的矛盾与对立。当你用坚定的意志将它们统一在同一目标下，没有什么能够阻挡你。保持专注，排除杂音，用行动证明你的决心。',
+            advice: '设定明确目标，排除一切干扰。当遇到阻力时，不要气馁——那是你内心矛盾的显现。用意志力将它们统一，继续前进。'
+        },
+        '正义': {
+            keywords: ['公平', '真相', '因果', '平衡', '诚实'],
+            meaning: '正义女神手持天平与剑，不偏不倚。她代表着因果法则——你种下什么，便会收获什么。此刻，真相无可避免地浮出水面。',
+            insight: '宇宙的因果天平从未停止运作。正义之牌宣告：你的每一个选择、每一个行动都在编织你未来的命运。如果你渴望公平的对待，先以公平对待他人；如果你寻求真相，先对自己诚实。此刻不是逃避责任的时候，而是勇敢面对你行为后果的时刻。记住，正义之剑既是审判，也是解放——真相虽然锋利，但它让你自由。',
+            advice: '诚实地评估自己的行为和选择。如果需要，承认错误并做出补偿。在做决定时，站在更高的道德立场上。公平地对待所有人。'
+        },
+        '隐士': {
+            keywords: ['内省', '寻求真理', '独处', '指引', '智慧'],
+            meaning: '隐士提着灯笼，独自站立于雪山之巅。他并非孤独，而是在主动寻求独处，以便在静默中聆听内在的真理之光。',
+            insight: '隐士的灯笼照亮的是前方三步的距离，而非整个远方。你正在经历一段需要内省与沉淀的时期——这不是逃避世界，而是为了更清晰地看清自己。社会的喧嚣一直在淹没你内心的声音，现在是时候远离噪音，进入你内在的圣殿。你寻找的答案不在外面的世界，而在你灵魂深处那盏微弱的灯火中。勇敢地走向内在的孤独，那里藏着你最深的智慧。',
+            advice: '减少社交媒体的使用，安排独处的时间。冥想、写日记、长途散步。在寂静中，你将听到内心的指引。'
+        },
+        '力量': {
+            keywords: ['勇气', '内在力量', '坚韧', '耐心', '慈悲'],
+            meaning: '一个女子温柔而坚定地抚摸着雄狮的嘴——这不是用蛮力征服，而是用内在的勇气、耐心与爱驯服了野性。真正的力量源于内心。',
+            insight: '你所面临的挑战需要的不是对抗，而是超越。力量之牌揭示了一个深刻的秘密：真正的强大不在于你能征服多少外界的敌人，而在于你能驯服多少内心的恐惧。那只雄狮代表着你自身的欲望、愤怒与恐惧——当你不再与它们对抗，而是以慈悲之心理解它们的本源，你会发现它们不再是你的敌人，而是你力量的源泉。温柔，有时是最强大的力量。',
+            advice: '面对恐惧时，不要逃避也不要对抗。深吸一口气，温柔地问自己："我在害怕什么？" 答案会赋予你真正的力量。'
+        },
+        '倒吊人': {
+            keywords: ['牺牲', '放下', '新视角', '暂停', '觉悟'],
+            meaning: '倒吊人以一种颠倒的姿势悬挂在树上，神情却安然自若。他自愿接受这段停滞的时光，以换取从全新角度看清真相的智慧。',
+            insight: '有时候，停滞不是惩罚，而是馈赠。倒吊人的姿态看似受困，实则是一种主动的臣服——当一切努力似乎都无法改变现状时，挣扎只会消耗你的能量。相反，试着换一个角度看待你的处境。你一直紧抓不放的是什么？你害怕放下后会失去什么？当你愿意"倒过来"看世界，你会惊讶地发现：那些你以为的困境，实际上隐藏着你从未看见的出口。',
+            advice: '暂停挣扎，接受当下的状态。试着从完全相反的角度看待你的问题。冥想、瑜伽或任何倒转视角的活动都会带来启发。'
+        },
+        '死神': {
+            keywords: ['转变', '结束', '新生', '放下', '蜕变'],
+            meaning: '死神骑着白马踏来，没有人能阻止他的脚步。但这张牌很少代表物理上的死亡，而是象征着一个旧阶段的终结，为新生命的到来腾出空间。',
+            insight: '旧的篇章正在合上，无论你是否准备好。死神的力量不可抗拒，也不可逆转——就像秋天树叶必然落下，为春天的嫩芽让路。你正在经历一次深刻的蜕变，那些不再服务于你最高利益的人、事、物正在从你的生命中剥离。虽然这个过程可能充满痛苦，但请相信：每一次结束都是一次重生。在废墟之中，新的种子正在发芽。',
+            advice: '允许结束的发生。不要死死抓住已经结束的关系、工作或模式。清理旧物，为新的可能性创造空间。相信"结束"正是"开始"的前奏。'
+        },
+        '节制': {
+            keywords: ['平衡', '和谐', '耐心', '适度', '融合'],
+            meaning: '天使一只脚踏在岸上，一只脚踏入水中，双手将圣杯中的水来回倾倒——象征着对立面的融合与平衡。真正的和谐存在于动态的中庸之道。',
+            insight: '生命不是非黑即白的选择题，而是一首需要不断调音的乐曲。节制之牌教导你：真正的智慧在于找到中间的道路——既不过度克制，也不放纵沉溺；既不高高在上，也不沉沦低谷。你正在学习如何在矛盾中保持平衡，在极端中找到中点。这个过程需要耐心，因为平衡不是静止的状态，而是持续的调整。就像走钢丝的艺人，每一次微小的晃动都是一次重新校准。',
+            advice: '检查你生活中哪些方面失衡了——工作与休息、给予与接受、理性与情感。温和地调整，而非剧烈改变。保持耐心。'
+        },
+        '恶魔': {
+            keywords: ['束缚', '执念', '物质主义', '成瘾', '阴影'],
+            meaning: '恶魔坐在半兽人的王座上，锁链松松地挂在他们的脖子上——事实上，锁链随时可以挣脱。这张牌揭示了那些我们自认为无法摆脱的束缚，其实只是幻觉。',
+            insight: '你唯一无法挣脱的枷锁，是你相信自己被束缚的那个念头。恶魔之牌不是外在的邪恶力量，而是你内心那些未被察觉的执念、恐惧和欲望的投射。它可能表现为对物质的沉迷、对控制的渴望、或是不健康的关系模式。但请注意：你脖子上的锁链是松的——你一直都有选择，只是恐惧让你假装看不到出口。直面你的阴影，承认它的存在，然后选择自由。',
+            advice: '诚实地审视你生活中那些让你感到被束缚的模式。寻求帮助，与信任的人分享你的挣扎。承认问题是解脱的第一步。'
+        },
+        '高塔': {
+            keywords: ['剧变', '崩塌', '启示', '觉醒', '重建'],
+            meaning: '高塔被闪电击中，火焰吞噬了塔顶，两个人从高处坠落。这看似一场灾难，却是必要的摧毁——只有旧的结构崩塌，新的基础才能建立。',
+            insight: '有些事物需要被打破，才能让你获得真正的自由。高塔的出现往往伴随着突如其来的冲击——也许是一段关系的结束、一个幻想的破灭、或是一次意外的失败。此刻你或许感到天崩地裂，但请相信：闪电所摧毁的只是那些早已腐朽的结构。那些建立在虚假基础之上的东西必须倒塌，才能为真实的生命让路。在废墟之中，你将发现前所未有的清晰与力量。',
+            advice: '允许自己感受冲击带来的情绪波动，但不要急于重建。等待尘埃落定后，你才能看清真正需要什么。危机之中藏着转机。'
+        },
+        '星星': {
+            keywords: ['希望', '灵感', '宁静', '疗愈', '指引'],
+            meaning: '女子跪在溪流边，将水倾倒回大地与河流之中。头顶八颗星辰闪烁着宁静的光芒。在经历高塔的崩塌后，星星带来了抚慰与希望。',
+            insight: '暴风雨已经过去，现在星光正在照亮你前方的路。星星之牌是宇宙赐予的宁静时刻——你的灵魂在经历了动荡之后，正在被温柔地修复。那些让你夜不能寐的焦虑正在消散，取而代之的是一种深层的平静与信任。你不再需要一个完美的计划，因为星星的光芒足以照亮你下一步该走的路。相信生命之流，保持开放的心，灵感会如星光般洒落在你的生活中。',
+            advice: '花时间在星空下冥想，或在水边静坐。重新连接你的灵感来源。保持希望，即使你看不到完整的道路——星光足以照亮下一步。'
+        },
+        '月亮': {
+            keywords: ['幻象', '恐惧', '潜意识', '直觉', '迷雾'],
+            meaning: '月光之下，一条小径通向远方，两旁有犬吠向月亮，一只龙虾从水中爬出。月亮之牌揭示了一个事实：并非一切如表面所见。恐惧与幻象正在考验你的信心。',
+            insight: '月亮的光芒是反射的、朦胧的——它照亮了世界，却让一切看起来扭曲而陌生。你现在正处于一个看不清真相的时期：你怀疑自己的判断，不确定谁是可信的，不确定前方的路通向何方。但月亮真正的考验是：在没有清晰的视野时，你是否仍然敢于向前走？那些让你恐惧的"影子"，大多只是你自己内心的投射。深入你的潜意识，揭开恐惧的面纱，你会发现真相远比想象的温和。',
+            advice: '不要被表面的幻象迷惑。在做出重大决定前，多收集信息。面对你的恐惧——写下来，看看它们是否真实。梦境可能包含重要的信息。'
+        },
+        '太阳': {
+            keywords: ['喜悦', '成功', '活力', '成就', '温暖'],
+            meaning: '太阳高悬在天空，一个孩子骑着白马在向日葵田中欢笑。这是塔罗中最积极的牌——代表着清晰、成功与生命的喜悦。',
+            insight: '阴影已经消散，太阳的光芒正在照耀你生命中的每一个角落。这是一个充满活力与信心的时刻——你之前的努力即将获得回报，你的笑容变得真诚而灿烂，你的能量感染着周围的人。太阳之牌鼓励你活在当下，享受生命赐予的简单快乐。不要被"应该"和"必须"所困，像那个骑马的孩子一样，在纯粹的存在中找到喜悦。你值得拥有这一切美好。',
+            advice: '庆祝你的成就，无论大小。花时间与孩子相处，或者做那些能让你像孩子一样开心的事情。分享你的温暖与正能量。'
+        },
+        '审判': {
+            keywords: ['觉醒', '重生', '内心的呼唤', '宽恕', '使命'],
+            meaning: '天使吹响号角，沉睡的亡灵从棺椁中苏醒。审判之牌象征着一次深刻的觉醒——你被召唤去回应内心最真实的渴望，去完成你灵魂的使命。',
+            insight: '号角已经吹响，你无法再假装没有听见。审判之牌带来的是一个无可回避的时刻：你必须面对你一直逃避的真相，回应你一直压抑的呼唤。也许是对一段旧情的了结，也许是追随被搁置的梦想，也许是承认一个你一直否认的事实。无论是什么，你内心深处知道那是什么。此刻的觉醒可能带来不安，但这份不安是重生的阵痛。放下过去的包袱，宽恕自己和他人，然后站起来回应那个呼唤。',
+            advice: '倾听来自内心的"召唤"。完成未了结的事情，寻求宽恕或给予宽恕。你正站在一个新周期的起点——做出那个你一直回避的决定。'
+        },
+        '世界': {
+            keywords: ['完成', '圆满', '成就', '整合', '旅程终点'],
+            meaning: '世界之牌描绘了一个在花环中舞蹈的女神，四角是四个活物象征四元素与四方位。这是塔罗的最后一张牌，代表着圆满、完成与周期的终结。',
+            insight: '一个伟大的周期已经完成，你站在旅程的终点线上。世界之牌肯定了你的成长与蜕变——你不再是旅程开始时的那个人。你已经穿越了愚者的悬崖、战车的挑战、高塔的崩塌和星星的治愈，现在你带着所有的智慧与经验回来了。这不是终点，而是更高层次的起点。在庆祝你的成就的同时，也要问自己：这段旅程教会了我什么？我如何将这份智慧带入下一个循环？',
+            advice: '承认并庆祝你的成就。花时间回顾你走过的路程，整合你学到的一切。准备迎接新的开始——因为周期的结束永远是下一个周期的序章。'
+        }
+    };
+
+    /* ============================================================
+       从 localStorage 读取卡牌数据
+       ============================================================ */
+    let cardData = null;
+    try {
+        const stored = localStorage.getItem('tarotCard');
+        if (stored) cardData = JSON.parse(stored);
+    } catch(e) {}
+
+    // 如果没有数据（直接访问），随机选一张
+    if (!cardData) {
+        const fallbackPool = [
+            { img:'./png/0. 愚者 (The Fool)-1.jpg', suit:'大阿卡纳 0', name:'愚者 The Fool' },
+            { img:'./png/Isolated The Magician Card-1.jpg', suit:'大阿卡纳 I', name:'魔术师 The Magician' },
+            { img:'./png/Isolated The High Priestess Card-1.jpg', suit:'大阿卡纳 II', name:'女祭司 The High Priestess' },
+        ];
+        cardData = fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
+    }
+
+    // 提取卡牌名称用于查找解读
+    const cardName = cardData.name.split(' ')[0]; // "愚者"、"女祭司"等
+
+    // 获取解读数据（默认用女祭司）
+    const reading = readings[cardName] || readings['女祭司'];
+
+    /* ============================================================
+       填充页面内容
+       ============================================================ */
+    document.getElementById('card-image').src = cardData.img;
+    document.getElementById('card-image').alt = cardData.name;
+    document.getElementById('card-number').textContent = cardData.suit;
+    document.getElementById('card-name').textContent = cardData.name;
+
+    // 关键词标签
+    const kwRow = document.getElementById('keywords-row');
+    reading.keywords.forEach(kw => {
+        const tag = document.createElement('span');
+        tag.className = 'keyword-tag';
+        tag.textContent = kw;
+        kwRow.appendChild(tag);
+    });
+
+    /* ============================================================
+       WebGL 虚空背景
+       ============================================================ */
+    const canvas = document.getElementById('void-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const particles = [];
+    for (let i = 0; i < 150; i++) {
+        particles.push({
+            x: Math.random() * W, y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: (Math.random() - 0.5) * 0.25,
+            r: Math.random() * 2.8 + 0.8,
+            alpha: Math.random() * 0.35 + 0.05,
+            phase: Math.random() * Math.PI * 2,
+        });
+    }
+
+    function drawVoid() {
+        ctx.clearRect(0, 0, W, H);
+        const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W,H)*0.7);
+        grad.addColorStop(0, '#0d0620');
+        grad.addColorStop(0.4, '#070708');
+        grad.addColorStop(1, '#000000');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+        particles.forEach(p => {
+            p.phase += 0.015;
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+            const pulse = p.alpha * (0.7 + 0.3 * Math.sin(p.phase));
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(212, 175, 55, ${pulse})`;
+            ctx.fill();
+        });
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 180) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(212, 175, 55, ${0.05 * (1 - dist/180)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(drawVoid);
+    }
+    drawVoid();
+
+    /* ============================================================
+       动画揭示序列
+       ============================================================ */
+    const cardEl = document.getElementById('card-container');
+    const titleTextEl = document.getElementById('title-text');
+    const cursorEl = document.getElementById('typewriter-cursor');
+
+    // 标题根据诊断动态
+    const titleMap = {
+        '愚者': '踏上未知的旅途…',
+        '魔术师': '力量在你手中觉醒…',
+        '女祭司': '帷幕正在升起…',
+        '女皇': '生命的丰饶向你涌来…',
+        '皇帝': '秩序从混沌中诞生…',
+        '教皇': '智慧在静默中传承…',
+        '恋人': '心灵的选择在呼唤你…',
+        '战车': '胜利属于坚定的意志…',
+        '正义': '天平正在校准…',
+        '隐士': '光明存在于内在…',
+        '力量': '真正的力量源于内心…',
+        '倒吊人': '换个角度看世界…',
+        '死神': '结束即是开始…',
+        '节制': '平衡是永恒的韵律…',
+        '恶魔': '枷锁只是幻象…',
+        '高塔': '摧毁是为了重建…',
+        '星星': '希望之光照亮前路…',
+        '月亮': '迷雾之中藏有真相…',
+        '太阳': '光明已经到来…',
+        '审判': '觉醒的时刻到了…',
+        '世界': '圆满是一段旅程的终点…',
+    };
+    const fullTitle = titleMap[cardName] || '帷幕正在升起…';
+    let titleIndex = 0;
+
+    // 卡牌入场
+    setTimeout(() => {
+        cardEl.style.opacity = '1';
+        cardEl.style.transform = 'translateY(0)';
+        spawnWelcomeSparkles();
+    }, 400);
+
+    function spawnWelcomeSparkles() {
+        for (let i = 0; i < 20; i++) {
+            const sp = document.createElement('div');
+            sp.className = 'sparkle-particle';
+            const size = Math.random() * 4 + 2;
+            sp.style.width = size + 'px';
+            sp.style.height = size + 'px';
+            sp.style.left = (window.innerWidth * 0.1 + Math.random() * window.innerWidth * 0.8) + 'px';
+            sp.style.top = (window.innerHeight * 0.3 + Math.random() * window.innerHeight * 0.4) + 'px';
+            sp.style.animationDuration = (2 + Math.random() * 2) + 's';
+            document.body.appendChild(sp);
+            setTimeout(() => sp.remove(), 4000);
+        }
+    }
+
+    // 打字机效果
+    function typeTitle() {
+        if (titleIndex < fullTitle.length) {
+            titleTextEl.textContent += fullTitle.charAt(titleIndex);
+            titleIndex++;
+            setTimeout(typeTitle, 80);
+        } else {
+            setTimeout(() => { cursorEl.style.opacity = '0.3'; }, 1000);
+            startRevealSequence();
+        }
+    }
+    setTimeout(typeTitle, 1200);
+
+    function startRevealSequence() {
+        // 填充解读内容
+        document.getElementById('text-line-1').textContent = reading.meaning;
+        document.getElementById('text-line-2').textContent = '✦ ' + reading.insight;
+        document.getElementById('text-line-3').innerHTML = reading.insight;
+        document.getElementById('text-line-4').textContent = reading.advice;
+
+        const sequence = [
+            { id: 'divider-1',       delay: 400  },
+            { id: 'keywords-row',    delay: 800  },
+            { id: 'text-line-1',     delay: 1600 },
+            { id: 'text-line-2-wrapper', delay: 3800 },
+            { id: 'divider-2',       delay: 5800 },
+            { id: 'text-line-3-wrapper', delay: 7200 },
+            { id: 'text-line-4-wrapper', delay: 9600 },
+            { id: 'action-area',     delay: 11500 }
+        ];
+        sequence.forEach(step => {
+            setTimeout(() => {
+                const el = document.getElementById(step.id);
+                if (el) el.classList.add('visible');
+            }, step.delay);
+        });
+    }
+
+    }); // DOMContentLoaded
+    </script>
+</body>
+</html>

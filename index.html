@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Aetheris Tarot - 解锁你的命运</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f2ca50",
+                        "primary-fixed": "#ffe088",
+                        "on-primary": "#3c2f00",
+                        "surface": "#131314",
+                        "on-surface": "#e5e2e3",
+                        "on-surface-variant": "#d0c5af",
+                        "surface-container-highest": "#353436",
+                        "surface-container-lowest": "#0e0e0f",
+                        "outline-variant": "#4d4635",
+                        "background": "#131314"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Cinzel Decorative"],
+                        "body-md": ["Cormorant Garamond"],
+                        "label-md": ["Manrope"],
+                        "display-lg": ["Cinzel Decorative"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, rgba(88, 57, 131, 0.15) 0%, rgba(19, 19, 20, 1) 100%);
+            min-height: 100vh;
+        }
+        .glow-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 20px theme('colors.primary');
+        }
+        .mandala-container {
+            animation: rotateSlow 60s linear infinite;
+        }
+        @keyframes rotateSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="relative flex flex-col min-h-screen">
+    <nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-primary/20 shadow-[0_0_20px_rgba(233,195,73,0.1)]">
+        <div class="flex justify-between items-center px-6 md:px-16 py-4 max-w-7xl mx-auto">
+            <a class="font-headline-md text-2xl text-primary tracking-widest hover:text-primary-fixed duration-300" href="index.html">
+                Aetheris Tarot
+            </a>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a class="font-body-md text-primary border-b-2 border-primary pb-1" href="index.html">首页</a>
+                <a class="font-body-md text-on-surface-variant hover:text-primary transition-colors" href="library.html">牌库</a>
+                <a class="font-body-md text-on-surface-variant hover:text-primary transition-colors" href="draw.html">抽牌</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow relative z-10 flex flex-col items-center justify-center pt-32 pb-24 px-6 overflow-hidden">
+        <section class="relative w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+            <div class="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] mb-12">
+                <div class="absolute inset-0 bg-primary/20 rounded-full blur-[60px]"></div>
+                <div class="mandala-container absolute inset-0 border-2 border-dashed border-primary/40 rounded-full"></div>
+                <div class="mandala-container absolute inset-4 border border-primary/30 rounded-full" style="animation-direction: reverse; animation-duration: 90s;"></div>
+                <div class="absolute inset-12 rounded-full overflow-hidden border border-primary p-1 bg-surface-container-highest shadow-[0_0_40px_rgba(212,175,55,0.2)]">
+                    <!-- Obsidian Moon -->
+                    <canvas id="moon-canvas" class="w-full h-full rounded-full"></canvas>
+                </div>
+            </div>
+            <div class="relative z-20 flex flex-col items-center gap-6 max-w-2xl">
+                <h1 class="font-display-lg text-4xl md:text-6xl text-on-surface drop-shadow-2xl">
+                    解锁你的<br/> <span class="text-primary italic font-light">命运</span>
+                </h1>
+                <p class="font-body-lg text-lg text-on-surface-variant max-w-lg mb-6">
+                    凝视深渊，探寻星辰篆刻的道路。体验一场通往内心深处的数字仪式。
+                </p>
+                <a href="draw.html" class="glow-button bg-primary text-on-primary font-label-md px-10 py-4 rounded-sm tracking-widest uppercase border border-primary-fixed shadow-[0_0_15px_rgba(242,202,80,0.3)] hover:shadow-[0_0_30px_rgba(242,202,80,0.6)]">
+                    开始你的旅程
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="w-full py-12 mt-12 bg-surface-container-lowest border-t border-outline-variant/30 z-10 relative">
+        <div class="text-center font-body-md text-sm text-outline-variant">
+            © 2026 Aetheris Tarot · 万般命运，皆在星辰之中
+        </div>
+    </footer>
+
+    <script>
+        // ─── 黑曜月 (Obsidian Moon) Canvas 绘制 ───
+        function drawObsidianMoon() {
+            const canvas = document.getElementById('moon-canvas');
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const size = Math.min(rect.width, rect.height) || 260;
+            canvas.width = size * 2;
+            canvas.height = size * 2;
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width / 2, cy = canvas.height / 2, r = canvas.width * 0.42;
+
+            // 黑曜石基底
+            const grad = ctx.createRadialGradient(cx - r*0.3, cy - r*0.3, 0, cx, cy, r);
+            grad.addColorStop(0, '#2a1a3a');
+            grad.addColorStop(0.3, '#1a1028');
+            grad.addColorStop(0.7, '#0d0818');
+            grad.addColorStop(1, '#050308');
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI*2);
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // 金色光环
+            for (let i = 5; i > 0; i--) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, r + i * 3, 0, Math.PI*2);
+                ctx.strokeStyle = `rgba(242, 202, 80, ${0.08 - i * 0.012})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+
+            // 月面纹理 - 暗色裂纹
+            for (let i = 0; i < 12; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * r * 0.7;
+                const x = cx + Math.cos(angle) * dist;
+                const y = cy + Math.sin(angle) * dist;
+                const len = Math.random() * 20 + 5;
+                const a2 = angle + (Math.random() - 0.5) * 0.5;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.quadraticCurveTo(x + Math.cos(a2)*len*0.5, y + Math.sin(a2)*len*0.5, x + Math.cos(a2)*len, y + Math.sin(a2)*len);
+                ctx.strokeStyle = `rgba(100, 70, 130, ${Math.random() * 0.3 + 0.1})`;
+                ctx.lineWidth = Math.random() * 1.5 + 0.5;
+                ctx.stroke();
+            }
+
+            // 金色细丝脉络
+            for (let i = 0; i < 8; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * r * 0.5;
+                const x = cx + Math.cos(angle) * dist;
+                const y = cy + Math.sin(angle) * dist;
+                ctx.beginPath();
+                ctx.arc(x, y, Math.random() * 2 + 0.5, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(242, 202, 80, ${Math.random() * 0.2 + 0.05})`;
+                ctx.fill();
+            }
+
+            // 高光 - 玻璃质感
+            const hlGrad = ctx.createRadialGradient(cx - r*0.25, cy - r*0.3, 0, cx - r*0.25, cy - r*0.3, r*0.5);
+            hlGrad.addColorStop(0, 'rgba(255,255,255,0.12)');
+            hlGrad.addColorStop(0.5, 'rgba(200,180,255,0.04)');
+            hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI*2);
+            ctx.fillStyle = hlGrad;
+            ctx.fill();
+
+            // 外发光
+            ctx.shadowColor = 'rgba(242,202,80,0.15)';
+            ctx.shadowBlur = 40;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(242,202,80,0.08)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        window.addEventListener('load', drawObsidianMoon);
+        window.addEventListener('resize', drawObsidianMoon);
+    </script>
+</body>
+</html>
