@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Manrope:wght@300;400;600&display=swap" rel="stylesheet"/>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-        body { background:#000; color:#e5e2e3; font-family:'Cormorant Garamond',serif; overflow:hidden; height:100dvh; width:100vw; touch-action:manipulation; }
+        body { background:#0e0e12; color:#e5e2e3; font-family:'Cormorant Garamond',serif; overflow:hidden; height:100dvh; width:100vw; touch-action:manipulation; background-image:radial-gradient(ellipse at 50% 50%, rgba(60,30,90,0.12) 0%, transparent 70%); }
         h1,h2,h3 { font-family:'Cinzel Decorative',serif; }
         #void-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
         nav { background:rgba(0,0,0,0.4)!important; backdrop-filter:blur(4px); border-bottom:1px solid rgba(242,202,80,0.08); padding:10px 16px!important; }
@@ -155,7 +155,7 @@
     const pp=Array.from({length:100},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.15,vy:(Math.random()-0.5)*0.15,r:Math.random()*2.5+0.5,a:Math.random()*0.25+0.03,ph:Math.random()*Math.PI*2}));
     const sb=Array.from({length:4},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.06,vy:(Math.random()-0.5)*0.06,r:Math.random()*180+80,a:Math.random()*0.03+0.008}));
     function dr(){
-        cx.clearRect(0,0,W,H); cx.fillStyle='#000'; cx.fillRect(0,0,W,H);
+        cx.clearRect(0,0,W,H); cx.fillStyle='#0e0e12'; cx.fillRect(0,0,W,H);
         sb.forEach(s=>{s.x+=s.vx;s.y+=s.vy;if(s.x<-200)s.x=W+200;if(s.x>W+200)s.x=-200;if(s.y<-200)s.y=H+200;if(s.y>H+200)s.y=-200;
             const g=cx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r);
             g.addColorStop(0,`rgba(60,30,90,${s.a*0.5})`);g.addColorStop(0.5,`rgba(30,15,50,${s.a*0.3})`);g.addColorStop(1,'rgba(0,0,0,0)');
