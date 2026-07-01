@@ -20,7 +20,7 @@
         .fan-card .card-front { background:#0d0d0e; transform:rotateY(180deg); display:flex; flex-direction:column; }
         .fan-card .card-front img { width:100%; height:60%; object-fit:cover; border-bottom:1px solid rgba(242,202,80,0.15); }
         .fan-card .card-front .info { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4px 6px; }
-        .fan-card .card-front .info span { font-size:clamp(7px,1.8vw,10px); color:#d0c5af; letter-spacing:0.1em; text-transform:uppercase; }
+        .fan-card .card-front .info span { font-size:clamp(7px,1.8vw,10px); color:#e0d5c0; letter-spacing:0.1em; text-transform:uppercase; }
         .fan-card .card-front .info h3 { font-size:clamp(9px,2.2vw,13px); color:#f2ca50; margin-top:1px; font-family:'Cinzel Decorative',serif; line-height:1.2; }
         .fan-card .sel-indicator { position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:clamp(14px,3vw,22px); color:#f2ca50; opacity:0; transition:opacity 0.3s; text-shadow:0 0 20px rgba(242,202,80,0.8); }
         .fan-card.selected .sel-indicator { opacity:1; }
@@ -38,9 +38,9 @@
         #gesture-panel.show { display:block; }
         #gesture-panel video { width:100%; border-radius:6px; transform:scaleX(-1); display:block; }
         #finger-count { text-align:center; margin-top:4px; font-size:22px; color:#f2ca50; font-family:'Cinzel Decorative',serif; }
-        #finger-label { text-align:center; font-size:9px; color:#d0c5af; letter-spacing:0.1em; text-transform:uppercase; opacity:0.5; }
+        #finger-label { text-align:center; font-size:9px; color:#e0d5c0; letter-spacing:0.1em; text-transform:uppercase; opacity:0.5; }
 
-        .hint-bar { position:fixed; bottom:50%; left:50%; transform:translateX(-50%); z-index:40; padding:6px 18px; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); border:1px solid rgba(242,202,80,0.12); border-radius:16px; color:#d0c5af; font-size:clamp(11px,2.5vw,14px); letter-spacing:0.05em; opacity:0; transition:opacity 0.4s; pointer-events:none; white-space:nowrap; }
+        .hint-bar { position:fixed; bottom:50%; left:50%; transform:translateX(-50%); z-index:40; padding:6px 18px; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); border:1px solid rgba(242,202,80,0.12); border-radius:16px; color:#e8dcc8; font-size:clamp(11px,2.5vw,14px); letter-spacing:0.05em; opacity:0; transition:opacity 0.4s; pointer-events:none; white-space:nowrap; }
         .hint-bar.show { opacity:1; }
 
         #revealed-card { position:fixed; top:50%; left:50%; width:min(320px,80vw); height:min(540px,135vw); z-index:80; opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(0.5); transition:opacity 0.6s, transform 0.6s cubic-bezier(0.2,0.8,0.2,1); }
@@ -75,8 +75,8 @@
     <nav class="fixed top-0 w-full flex justify-between items-center z-50">
         <a href="index.html" class="text-[#f2ca50] text-xs md:text-sm uppercase tracking-[0.2em] no-underline opacity-70 hover:opacity-100 transition-opacity" style="font-family:'Cinzel Decorative',serif;">Aetheris Tarot</a>
         <div class="flex gap-4 md:gap-6">
-            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors uppercase text-[10px] md:text-xs tracking-widest opacity-60 hover:opacity-100" href="index.html">首页</a>
-            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors uppercase text-[10px] md:text-xs tracking-widest opacity-60 hover:opacity-100" href="library.html">牌库</a>
+            <a class="text-[#e0d5c0] hover:text-[#f2ca50] transition-colors uppercase text-[10px] md:text-xs tracking-widest hover:opacity-100" href="index.html">首页</a>
+            <a class="text-[#e0d5c0] hover:text-[#f2ca50] transition-colors uppercase text-[10px] md:text-xs tracking-widest hover:opacity-100" href="library.html">牌库</a>
             <a class="text-[#f2ca50] uppercase text-[10px] md:text-xs tracking-widest opacity-90" href="draw.html">抽牌</a>
         </div>
     </nav>
@@ -84,7 +84,7 @@
     <main class="relative z-10 h-screen">
         <div class="text-center pt-12 md:pt-14 z-30 pointer-events-none" id="header">
             <h1 class="text-2xl md:text-5xl text-[#f2ca50] tracking-[0.08em] font-light drop-shadow-[0_0_30px_rgba(242,202,80,0.3)]">命运之手</h1>
-            <p class="text-[#d0c5af]/40 text-[10px] md:text-xs mt-1 tracking-widest uppercase">点击选牌 · 点击确认</p>
+            <p class="text-[#e8dcc8]/50 text-[10px] md:text-xs mt-1 tracking-widest uppercase">点击选牌 · 点击确认</p>
         </div>
 
         <div class="hint-bar" id="hint">👆 点击选牌 · 点击确认抽取</div>
@@ -105,7 +105,7 @@
                 <div class="cf cf2">
                     <img id="rimg" src="" alt=""/>
                     <div class="info">
-                        <span class="text-[10px] text-[#d0c5af] uppercase tracking-widest mb-1" id="rsuit"></span>
+                        <span class="text-[10px] text-[#e0d5c0] uppercase tracking-widest mb-1" id="rsuit"></span>
                         <h2 id="rname"></h2>
                         <div class="w-8 h-px bg-[#f2ca50]/40 mb-2"></div>
                         <p id="rmeaning"></p>
