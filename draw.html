@@ -2,169 +2,177 @@
 <html class="dark" lang="zh-CN">
 <head>
     <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
     <title>命运之手 - Aetheris Tarot</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Manrope:wght@300;400;600&display=swap" rel="stylesheet"/>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:#000; color:#e5e2e3; font-family:'Cormorant Garamond',serif; overflow:hidden; height:100vh; width:100vw; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body { background:#000; color:#e5e2e3; font-family:'Cormorant Garamond',serif; overflow:hidden; height:100dvh; width:100vw; touch-action:manipulation; }
         h1,h2,h3 { font-family:'Cinzel Decorative',serif; }
         #void-canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
-        nav { background:rgba(0,0,0,0.4)!important; backdrop-filter:blur(4px); border-bottom:1px solid rgba(242,202,80,0.08); }
+        nav { background:rgba(0,0,0,0.4)!important; backdrop-filter:blur(4px); border-bottom:1px solid rgba(242,202,80,0.08); padding:10px 16px!important; }
 
-        /* ─── 5 Cards Fan ─── */
-        #fan-container { position:fixed; bottom:6%; left:50%; transform:translateX(-50%); z-index:20; perspective:1200px; width:700px; height:340px; }
-        .fan-card { position:absolute; bottom:0; width:150px; height:250px; cursor:pointer; transform-origin:bottom center; transition:transform 0.5s cubic-bezier(0.2,0.8,0.2,1), filter 0.3s, opacity 0.4s; transform-style:preserve-3d; }
-        .fan-card .card-face { position:absolute; inset:0; backface-visibility:hidden; border:1px solid rgba(242,202,80,0.4); border-radius:8px; overflow:hidden; }
+        #fan-container { position:fixed; bottom:4%; left:50%; transform:translateX(-50%); z-index:20; perspective:1200px; width:min(700px,95vw); height:min(340px,48vw); }
+        .fan-card { position:absolute; bottom:0; width:min(150px,22vw); height:min(250px,38vw); cursor:pointer; transform-origin:bottom center; transition:transform 0.5s cubic-bezier(0.2,0.8,0.2,1), opacity 0.4s; transform-style:preserve-3d; -webkit-user-select:none; user-select:none; }
+        .fan-card .card-face { position:absolute; inset:0; backface-visibility:hidden; border:1px solid rgba(242,202,80,0.4); border-radius:6px; overflow:hidden; }
         .fan-card .card-back { background:url('./png/0. 愚者 (The Fool)-1.jpg') center/cover; filter:brightness(0.5) saturate(0.4); }
         .fan-card .card-front { background:#0d0d0e; transform:rotateY(180deg); display:flex; flex-direction:column; }
-        .fan-card .card-front img { width:100%; height:62%; object-fit:cover; border-bottom:1px solid rgba(242,202,80,0.15); }
-        .fan-card .card-front .info { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; }
-        .fan-card .card-front .info span { font-size:9px; color:#d0c5af; letter-spacing:0.15em; text-transform:uppercase; }
-        .fan-card .card-front .info h3 { font-size:13px; color:#f2ca50; margin-top:2px; font-family:'Cinzel Decorative',serif; }
-        .fan-card .sel-indicator { position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:22px; color:#f2ca50; opacity:0; transition:opacity 0.3s; text-shadow:0 0 20px rgba(242,202,80,0.8); }
+        .fan-card .card-front img { width:100%; height:60%; object-fit:cover; border-bottom:1px solid rgba(242,202,80,0.15); }
+        .fan-card .card-front .info { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4px 6px; }
+        .fan-card .card-front .info span { font-size:clamp(7px,1.8vw,10px); color:#d0c5af; letter-spacing:0.1em; text-transform:uppercase; }
+        .fan-card .card-front .info h3 { font-size:clamp(9px,2.2vw,13px); color:#f2ca50; margin-top:1px; font-family:'Cinzel Decorative',serif; line-height:1.2; }
+        .fan-card .sel-indicator { position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:clamp(14px,3vw,22px); color:#f2ca50; opacity:0; transition:opacity 0.3s; text-shadow:0 0 20px rgba(242,202,80,0.8); }
         .fan-card.selected .sel-indicator { opacity:1; }
-        .fan-card.selected { transform:translateY(-24px) scale(1.06) !important; z-index:30!important; filter:drop-shadow(0 0 20px rgba(242,202,80,0.4)); }
+        .fan-card.selected { transform:translateY(-18px) scale(1.06) !important; z-index:30!important; filter:drop-shadow(0 0 16px rgba(242,202,80,0.4)); }
         .fan-card.selected .card-back { border-color:#f2ca50!important; }
 
-        /* ─── Gesture ─── */
-        #gesture-btn { position:fixed; top:76px; right:18px; z-index:60; width:42px; height:42px; border-radius:50%; border:1px solid rgba(242,202,80,0.25); background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); color:#f2ca50; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.3s; }
-        #gesture-btn:hover { border-color:#f2ca50; box-shadow:0 0 16px rgba(242,202,80,0.15); }
-        #gesture-btn.on { background:rgba(242,202,80,0.12); border-color:#f2ca50; box-shadow:0 0 20px rgba(242,202,80,0.2); }
-        #gesture-panel { position:fixed; bottom:350px; right:18px; z-index:55; width:180px; background:rgba(0,0,0,0.7); backdrop-filter:blur(12px); border:1px solid rgba(242,202,80,0.12); border-radius:12px; padding:12px; display:none; }
+        #confirm-btn { position:fixed; bottom:calc(4% + min(250px,38vw) + 8px); left:50%; transform:translateX(-50%); z-index:25; padding:10px 36px; background:rgba(242,202,80,0.12); border:1px solid rgba(242,202,80,0.3); border-radius:24px; color:#f2ca50; font-size:clamp(12px,2.8vw,15px); font-family:'Cinzel Decorative',serif; letter-spacing:0.15em; cursor:pointer; opacity:0; pointer-events:none; transition:opacity 0.4s, background 0.3s; backdrop-filter:blur(8px); -webkit-user-select:none; user-select:none; }
+        #confirm-btn.show { opacity:1; pointer-events:auto; }
+        #confirm-btn:active { background:rgba(242,202,80,0.25); transform:translateX(-50%) scale(0.95); }
+
+        #gesture-btn { position:fixed; top:70px; right:12px; z-index:60; width:40px; height:40px; border-radius:50%; border:1px solid rgba(242,202,80,0.2); background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); color:#f2ca50; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.3s; }
+        #gesture-btn:active { transform:scale(0.9); }
+        #gesture-btn.on { background:rgba(242,202,80,0.12); border-color:#f2ca50; box-shadow:0 0 16px rgba(242,202,80,0.15); }
+        #gesture-panel { position:fixed; right:12px; z-index:55; bottom:calc(4% + min(250px,38vw) + 70px); width:min(160px,40vw); background:rgba(0,0,0,0.75); backdrop-filter:blur(12px); border:1px solid rgba(242,202,80,0.1); border-radius:10px; padding:10px; display:none; }
         #gesture-panel.show { display:block; }
-        #gesture-panel video { width:100%; border-radius:8px; transform:scaleX(-1); display:block; }
-        #finger-count { text-align:center; margin-top:8px; font-size:28px; color:#f2ca50; font-family:'Cinzel Decorative',serif; }
-        #finger-label { text-align:center; font-size:10px; color:#d0c5af; letter-spacing:0.15em; text-transform:uppercase; opacity:0.5; }
-        .hint-bar { position:fixed; bottom:48%; left:50%; transform:translateX(-50%); z-index:40; padding:8px 22px; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); border:1px solid rgba(242,202,80,0.15); border-radius:20px; color:#d0c5af; font-size:13px; letter-spacing:0.08em; opacity:0; transition:opacity 0.5s; pointer-events:none; white-space:nowrap; }
+        #gesture-panel video { width:100%; border-radius:6px; transform:scaleX(-1); display:block; }
+        #finger-count { text-align:center; margin-top:4px; font-size:22px; color:#f2ca50; font-family:'Cinzel Decorative',serif; }
+        #finger-label { text-align:center; font-size:9px; color:#d0c5af; letter-spacing:0.1em; text-transform:uppercase; opacity:0.5; }
+
+        .hint-bar { position:fixed; bottom:50%; left:50%; transform:translateX(-50%); z-index:40; padding:6px 18px; background:rgba(0,0,0,0.5); backdrop-filter:blur(6px); border:1px solid rgba(242,202,80,0.12); border-radius:16px; color:#d0c5af; font-size:clamp(11px,2.5vw,14px); letter-spacing:0.05em; opacity:0; transition:opacity 0.4s; pointer-events:none; white-space:nowrap; }
         .hint-bar.show { opacity:1; }
 
-        /* ─── Revealed ─── */
-        #revealed-card { position:fixed; top:50%; left:50%; width:320px; height:540px; z-index:80; opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(0.5); transition:opacity 0.6s, transform 0.6s cubic-bezier(0.2,0.8,0.2,1); }
+        #revealed-card { position:fixed; top:50%; left:50%; width:min(320px,80vw); height:min(540px,135vw); z-index:80; opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(0.5); transition:opacity 0.6s, transform 0.6s cubic-bezier(0.2,0.8,0.2,1); }
         #revealed-card.show { opacity:1; transform:translate(-50%,-50%) scale(1); }
         #revealed-card .ri { position:relative; width:100%; height:100%; transition:transform 1.2s cubic-bezier(0.2,0.8,0.2,1); transform-style:preserve-3d; }
         #revealed-card.flipped .ri { transform:rotateY(180deg); }
-        #revealed-card .cf { position:absolute; inset:0; backface-visibility:hidden; border:1px solid #f2ca50; border-radius:8px; overflow:hidden; }
+        #revealed-card .cf { position:absolute; inset:0; backface-visibility:hidden; border:1px solid #f2ca50; border-radius:6px; overflow:hidden; }
         #revealed-card .cb { background:url('./png/0. 愚者 (The Fool)-1.jpg') center/cover; filter:brightness(0.5) saturate(0.4); }
         #revealed-card .cf2 { background:#0d0d0e; transform:rotateY(180deg); display:flex; flex-direction:column; }
+        #revealed-card .cf2 img { width:100%; height:58%; object-fit:cover; }
+        #revealed-card .cf2 .info { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 12px; }
+        #revealed-card .cf2 .info h2 { font-size:clamp(16px,4vw,22px); color:#f2ca50; margin-bottom:6px; }
+        #revealed-card .cf2 .info p { font-size:clamp(11px,2.5vw,14px); color:#e5e2e3/80; }
         .gold-glow { box-shadow:0 0 40px rgba(242,202,80,0.3),0 0 80px rgba(242,202,80,0.15); }
         @keyframes bg { 0%,100% { box-shadow:0 0 30px rgba(242,202,80,0.3),0 0 60px rgba(242,202,80,0.1); } 50% { box-shadow:0 0 60px rgba(242,202,80,0.6),0 0 120px rgba(242,202,80,0.25); } }
         .cbg { animation:bg 3s ease-in-out infinite; }
-        #post-actions { position:fixed; bottom:10%; left:0; width:100%; display:flex; justify-content:center; gap:16px; opacity:0; pointer-events:none; transition:opacity 1s; z-index:40; }
+
+        #post-actions { position:fixed; bottom:5%; left:0; width:100%; display:flex; justify-content:center; gap:12px; opacity:0; pointer-events:none; transition:opacity 1s; z-index:40; }
+        #post-actions a,#post-actions button { font-size:clamp(10px,2.5vw,13px); padding:10px 20px; white-space:nowrap; }
+
         .pd { position:fixed; border-radius:50%; background:#f2ca50; pointer-events:none; z-index:5; animation:df 2.5s ease-out forwards; }
         @keyframes df { 0% { opacity:0.9; transform:scale(1) translateY(0); } 100% { opacity:0; transform:scale(0) translateY(-60px); } }
+
+        #dot-nav { position:fixed; bottom:calc(4% + min(250px,38vw) + 52px); left:50%; transform:translateX(-50%); z-index:22; display:flex; gap:6px; }
+        #dot-nav .dot { width:6px; height:6px; border-radius:50%; background:rgba(242,202,80,0.2); transition:all 0.3s; }
+        #dot-nav .dot.active { background:#f2ca50; width:16px; border-radius:3px; }
     </style>
 </head>
 <body>
     <canvas id="void-canvas"></canvas>
 
-    <nav class="fixed top-0 w-full flex justify-between items-center px-8 md:px-16 py-3 z-50">
-        <a href="index.html" class="text-[#f2ca50] text-sm uppercase tracking-[0.2em] no-underline opacity-70 hover:opacity-100 transition-opacity" style="font-family:'Cinzel Decorative',serif;">Aetheris Tarot</a>
-        <div class="flex gap-6">
-            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors uppercase text-xs tracking-widest opacity-60 hover:opacity-100" href="index.html">首页</a>
-            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors uppercase text-xs tracking-widest opacity-60 hover:opacity-100" href="library.html">牌库</a>
-            <a class="text-[#f2ca50] uppercase text-xs tracking-widest opacity-90" href="draw.html">抽牌</a>
+    <nav class="fixed top-0 w-full flex justify-between items-center z-50">
+        <a href="index.html" class="text-[#f2ca50] text-xs md:text-sm uppercase tracking-[0.2em] no-underline opacity-70 hover:opacity-100 transition-opacity" style="font-family:'Cinzel Decorative',serif;">Aetheris Tarot</a>
+        <div class="flex gap-4 md:gap-6">
+            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors uppercase text-[10px] md:text-xs tracking-widest opacity-60 hover:opacity-100" href="index.html">首页</a>
+            <a class="text-[#d0c5af] hover:text-[#f2ca50] transition-colors uppercase text-[10px] md:text-xs tracking-widest opacity-60 hover:opacity-100" href="library.html">牌库</a>
+            <a class="text-[#f2ca50] uppercase text-[10px] md:text-xs tracking-widest opacity-90" href="draw.html">抽牌</a>
         </div>
     </nav>
 
     <main class="relative z-10 h-screen">
-        <div class="text-center pt-14 z-30 pointer-events-none" id="header">
-            <h1 class="text-3xl md:text-5xl text-[#f2ca50] tracking-[0.08em] font-light drop-shadow-[0_0_30px_rgba(242,202,80,0.3)]">命运之手</h1>
-            <p class="text-[#d0c5af]/40 text-xs mt-2 tracking-widest uppercase">选一张牌 · 揭晓命运</p>
+        <div class="text-center pt-12 md:pt-14 z-30 pointer-events-none" id="header">
+            <h1 class="text-2xl md:text-5xl text-[#f2ca50] tracking-[0.08em] font-light drop-shadow-[0_0_30px_rgba(242,202,80,0.3)]">命运之手</h1>
+            <p class="text-[#d0c5af]/40 text-[10px] md:text-xs mt-1 tracking-widest uppercase">点击选牌 · 点击确认</p>
         </div>
 
-        <div class="hint-bar" id="hint">👆 点击选牌 · 双击确认 · 键盘 1-5 + Enter</div>
-
+        <div class="hint-bar" id="hint">👆 点击选牌 · 点击确认抽取</div>
+        <div id="dot-nav"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
         <div id="fan-container"></div>
+        <button id="confirm-btn">✦ 抽取此牌 ✦</button>
 
-        <button id="gesture-btn" title="手势控制">✋</button>
+        <button id="gesture-btn" title="摄像头手势控制">✋</button>
         <div id="gesture-panel">
-            <video id="gvideo" autoplay playsinline></video>
+            <video id="gvideo" autoplay playsinline muted></video>
             <div id="finger-count">-</div>
-            <div id="finger-label">手指数量</div>
+            <div id="finger-label">手指选牌 · 握拳抽取</div>
         </div>
 
         <div id="revealed-card">
             <div class="ri">
                 <div class="cf cb"></div>
-                <div class="cf cf2 p-5">
-                    <img id="rimg" src="" alt="" class="w-full h-[60%] object-cover rounded-sm border border-[#4d4635]"/>
-                    <div class="flex-1 flex flex-col items-center justify-center pt-4 text-center">
-                        <span class="text-xs text-[#d0c5af] uppercase tracking-widest mb-1" id="rsuit"></span>
-                        <h2 class="text-2xl text-[#f2ca50] mb-2" id="rname"></h2>
-                        <div class="w-12 h-px bg-[#f2ca50]/40 mb-3"></div>
-                        <p class="text-sm text-[#e5e2e3]/80" id="rmeaning"></p>
+                <div class="cf cf2">
+                    <img id="rimg" src="" alt=""/>
+                    <div class="info">
+                        <span class="text-[10px] text-[#d0c5af] uppercase tracking-widest mb-1" id="rsuit"></span>
+                        <h2 id="rname"></h2>
+                        <div class="w-8 h-px bg-[#f2ca50]/40 mb-2"></div>
+                        <p id="rmeaning"></p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="post-actions">
-            <button onclick="location.reload()" class="px-6 py-2 border border-[#f2ca50]/50 text-[#f2ca50] text-xs uppercase tracking-[0.2em] rounded-full bg-black/50 backdrop-blur-md hover:bg-[#f2ca50]/10 transition-all">再次抽牌</button>
-            <a href="javascript:void(0)" onclick="svNav()" class="px-8 py-2 bg-[#f2ca50] text-[#1a1a1a] text-xs font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#ffe088] transition-all shadow-[0_0_20px_rgba(242,202,80,0.3)]">解读含义</a>
+            <button onclick="location.reload()" class="border border-[#f2ca50]/50 text-[#f2ca50] uppercase tracking-[0.2em] rounded-full bg-black/50 backdrop-blur-md hover:bg-[#f2ca50]/10 transition-all">再次抽牌</button>
+            <a href="javascript:void(0)" onclick="svNav()" class="bg-[#f2ca50] text-[#1a1a1a] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-[#ffe088] transition-all shadow-[0_0_20px_rgba(242,202,80,0.3)]">解读含义</a>
         </div>
     </main>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-
-    /* ============================================================
-       Card Pool (21 Major Arcana)
-       ============================================================ */
     const pool = [
-        { img:'./png/0. 愚者 (The Fool)-1.jpg',          s:'大阿卡纳 0',   n:'愚者 · The Fool',      m:'新的开始、自发性、自由精神。' },
-        { img:'./png/Isolated The Magician Card-1.jpg', s:'大阿卡纳 I',   n:'魔术师 · The Magician', m:'创造力、自信、掌控与技巧。' },
-        { img:'./png/Isolated The High Priestess Card-1.jpg', s:'大阿卡纳 II', n:'女祭司 · The High Priestess', m:'直觉、神圣知识、内在智慧。' },
-        { img:'./png/Isolated The Empress Card-1.jpg',  s:'大阿卡纳 III', n:'女皇 · The Empress',    m:'丰饶、自然、母性与滋养。' },
-        { img:'./png/Emperor (IV)-1.jpg',               s:'大阿卡纳 IV',  n:'皇帝 · The Emperor',    m:'权威、秩序、稳定与保护。' },
-        { img:'./png/Hierophant (V)-1.jpg',             s:'大阿卡纳 V',   n:'教皇 · The Hierophant', m:'传统、智慧、精神指引。' },
-        { img:'./png/Lovers (VI)-1.jpg',                s:'大阿卡纳 VI',  n:'恋人 · The Lovers',     m:'爱情、和谐、关系与选择。' },
-        { img:'./png/Chariot (VII)-1.jpg',              s:'大阿卡纳 VII', n:'战车 · The Chariot',    m:'意志力、决心、专注致胜。' },
-        { img:'./png/Justice (VIII)-1.jpg',             s:'大阿卡纳 VIII',n:'正义 · Justice',       m:'公平、真相、因果报应。' },
-        { img:'./png/Hermit (IX)-1.jpg',                s:'大阿卡纳 IX',  n:'隐士 · The Hermit',     m:'内省、寻求真理、独处。' },
-        { img:'./png/Strength (XI)-1.jpg',              s:'大阿卡纳 XI',  n:'力量 · Strength',      m:'勇气、内在力量、坚韧。' },
-        { img:'./png/Hanging Man (XII)-1.jpg',          s:'大阿卡纳 XII', n:'倒吊人 · The Hanged Man', m:'牺牲、放下、新的视角。' },
-        { img:'./png/Death (XIII)-1.jpg',               s:'大阿卡纳 XIII',n:'死神 · Death',         m:'转变、结束、新的开始。' },
-        { img:'./png/Temperance (XIV)-1.jpg',           s:'大阿卡纳 XIV', n:'节制 · Temperance',    m:'平衡、和谐、耐心与适度。' },
-        { img:'./png/Devil (XV)-1.jpg',                 s:'大阿卡纳 XV',  n:'恶魔 · The Devil',     m:'束缚、执念、物质主义。' },
-        { img:'./png/Tower (XVI)-1.jpg',                s:'大阿卡纳 XVI', n:'高塔 · The Tower',     m:'剧变、崩塌、启示。' },
-        { img:'./png/Star (XVII)-1.jpg',                s:'大阿卡纳 XVII',n:'星星 · The Star',      m:'希望、灵感、宁静与慷慨。' },
-        { img:'./png/Moon (XVIII)-1.jpg',               s:'大阿卡纳 XVIII',n:'月亮 · The Moon',     m:'幻象、恐惧、潜意识。' },
-        { img:'./png/Sun (XIX)-1.jpg',                  s:'大阿卡纳 XIX', n:'太阳 · The Sun',       m:'喜悦、成功、活力与正能量。' },
-        { img:'./png/Judgement (XX)-1.jpg',             s:'大阿卡纳 XX',  n:'审判 · Judgement',    m:'觉醒、重生、内心的呼唤。' },
-        { img:'./png/World (XXI)-1.jpg',                s:'大阿卡纳 XXI', n:'世界 · The World',     m:'完成、圆满、旅程的终点。' },
+        { img:'./png/0. 愚者 (The Fool)-1.jpg', s:'大阿卡纳 0', n:'愚者', m:'新的开始、自发性、自由精神。' },
+        { img:'./png/Isolated The Magician Card-1.jpg', s:'大阿卡纳 I', n:'魔术师', m:'创造力、自信、掌控与技巧。' },
+        { img:'./png/Isolated The High Priestess Card-1.jpg', s:'大阿卡纳 II', n:'女祭司', m:'直觉、神圣知识、内在智慧。' },
+        { img:'./png/Isolated The Empress Card-1.jpg', s:'大阿卡纳 III', n:'女皇', m:'丰饶、自然、母性与滋养。' },
+        { img:'./png/Emperor (IV)-1.jpg', s:'大阿卡纳 IV', n:'皇帝', m:'权威、秩序、稳定与保护。' },
+        { img:'./png/Hierophant (V)-1.jpg', s:'大阿卡纳 V', n:'教皇', m:'传统、智慧、精神指引。' },
+        { img:'./png/Lovers (VI)-1.jpg', s:'大阿卡纳 VI', n:'恋人', m:'爱情、和谐、关系与选择。' },
+        { img:'./png/Chariot (VII)-1.jpg', s:'大阿卡纳 VII', n:'战车', m:'意志力、决心、专注致胜。' },
+        { img:'./png/Justice (VIII)-1.jpg', s:'大阿卡纳 VIII', n:'正义', m:'公平、真相、因果报应。' },
+        { img:'./png/Hermit (IX)-1.jpg', s:'大阿卡纳 IX', n:'隐士', m:'内省、寻求真理、独处。' },
+        { img:'./png/Strength (XI)-1.jpg', s:'大阿卡纳 XI', n:'力量', m:'勇气、内在力量、坚韧。' },
+        { img:'./png/Hanging Man (XII)-1.jpg', s:'大阿卡纳 XII', n:'倒吊人', m:'牺牲、放下、新的视角。' },
+        { img:'./png/Death (XIII)-1.jpg', s:'大阿卡纳 XIII', n:'死神', m:'转变、结束、新的开始。' },
+        { img:'./png/Temperance (XIV)-1.jpg', s:'大阿卡纳 XIV', n:'节制', m:'平衡、和谐、耐心与适度。' },
+        { img:'./png/Devil (XV)-1.jpg', s:'大阿卡纳 XV', n:'恶魔', m:'束缚、执念、物质主义。' },
+        { img:'./png/Tower (XVI)-1.jpg', s:'大阿卡纳 XVI', n:'高塔', m:'剧变、崩塌、启示。' },
+        { img:'./png/Star (XVII)-1.jpg', s:'大阿卡纳 XVII', n:'星星', m:'希望、灵感、宁静与慷慨。' },
+        { img:'./png/Moon (XVIII)-1.jpg', s:'大阿卡纳 XVIII', n:'月亮', m:'幻象、恐惧、潜意识。' },
+        { img:'./png/Sun (XIX)-1.jpg', s:'大阿卡纳 XIX', n:'太阳', m:'喜悦、成功、活力与正能量。' },
+        { img:'./png/Judgement (XX)-1.jpg', s:'大阿卡纳 XX', n:'审判', m:'觉醒、重生、内心的呼唤。' },
+        { img:'./png/World (XXI)-1.jpg', s:'大阿卡纳 XXI', n:'世界', m:'完成、圆满、旅程的终点。' },
     ];
+    const engNames = ['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Justice','The Hermit','Strength','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
 
-    /* ============================================================
-       Void Background (Canvas)
-       ============================================================ */
+    /* Canvas BG */
     const cv=document.getElementById('void-canvas'), cx=cv.getContext('2d');
     let W,H;
     function rs(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;}
     window.addEventListener('resize',rs); rs();
-    const pp=Array.from({length:120},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,r:Math.random()*3+0.5,a:Math.random()*0.3+0.05,ph:Math.random()*Math.PI*2}));
-    const sb=Array.from({length:5},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.08,vy:(Math.random()-0.5)*0.08,r:Math.random()*200+100,a:Math.random()*0.04+0.01}));
+    const pp=Array.from({length:100},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.15,vy:(Math.random()-0.5)*0.15,r:Math.random()*2.5+0.5,a:Math.random()*0.25+0.03,ph:Math.random()*Math.PI*2}));
+    const sb=Array.from({length:4},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.06,vy:(Math.random()-0.5)*0.06,r:Math.random()*180+80,a:Math.random()*0.03+0.008}));
     function dr(){
         cx.clearRect(0,0,W,H); cx.fillStyle='#000'; cx.fillRect(0,0,W,H);
         sb.forEach(s=>{s.x+=s.vx;s.y+=s.vy;if(s.x<-200)s.x=W+200;if(s.x>W+200)s.x=-200;if(s.y<-200)s.y=H+200;if(s.y>H+200)s.y=-200;
             const g=cx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r);
             g.addColorStop(0,`rgba(60,30,90,${s.a*0.5})`);g.addColorStop(0.5,`rgba(30,15,50,${s.a*0.3})`);g.addColorStop(1,'rgba(0,0,0,0)');
             cx.fillStyle=g;cx.fillRect(s.x-s.r,s.y-s.r,s.r*2,s.r*2);});
-        pp.forEach(p=>{p.ph+=0.012;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+        pp.forEach(p=>{p.ph+=0.01;p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
             const a=p.a*(0.6+0.4*Math.sin(p.ph));cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);
             cx.fillStyle=`rgba(242,202,80,${a})`;cx.fill();});
-        for(let i=0;i<pp.length;i++) for(let j=i+1;j<pp.length;j++){const dx=pp[i].x-pp[j].x,dy=pp[i].y-pp[j].y,d=Math.sqrt(dx*dx+dy*dy);
-            if(d<120){cx.beginPath();cx.moveTo(pp[i].x,pp[i].y);cx.lineTo(pp[j].x,pp[j].y);cx.strokeStyle=`rgba(242,202,80,${0.04*(1-d/120)})`;cx.lineWidth=0.4;cx.stroke();}}
+        for(let i=0;i<pp.length;i++)for(let j=i+1;j<pp.length;j++){const dx=pp[i].x-pp[j].x,dy=pp[i].y-pp[j].y,d=Math.sqrt(dx*dx+dy*dy);
+            if(d<100){cx.beginPath();cx.moveTo(pp[i].x,pp[i].y);cx.lineTo(pp[j].x,pp[j].y);cx.strokeStyle=`rgba(242,202,80,${0.03*(1-d/100)})`;cx.lineWidth=0.3;cx.stroke();}}
         requestAnimationFrame(dr);
     } dr();
 
-    /* ============================================================
-       5 Cards Fan Layout
-       ============================================================ */
+    /* Cards */
     const fc=document.getElementById('fan-container'), hint=document.getElementById('hint');
     const rc=document.getElementById('revealed-card'), pa=document.getElementById('post-actions');
-    let cards=[], sel=-1, drawing=false, done=false;
+    const cbtn=document.getElementById('confirm-btn'), dots=document.querySelectorAll('#dot-nav .dot');
+    let cards=[], sel=-1, drawing=false, done=false, touchStartX=0;
 
     function p5(){return[...pool].sort(()=>Math.random()-0.5).slice(0,5);}
 
@@ -177,80 +185,102 @@
             d.innerHTML=`<div class="card-face card-back"></div><div class="card-face card-front"><img src="${c.img}" alt="${c.n}" loading="lazy"/><div class="info"><span>${c.s}</span><h3>${c.n}</h3></div></div><div class="sel-indicator">✦</div>`;
             d.style.transform=`rotate(${ang}deg) translateY(${-yOff}px)`;
             fc.appendChild(d);
-            d.addEventListener('click',()=>selCard(i));
-            d.addEventListener('dblclick',()=>{if(sel===i)cfm();});
+            d.addEventListener('click',(e)=>{e.stopPropagation();selCard(i);});
         });
+        // Touch swipe
+        fc.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;},{passive:true});
+        fc.addEventListener('touchend',e=>{
+            if(drawing||done)return;
+            const dx=e.changedTouches[0].clientX-touchStartX;
+            if(Math.abs(dx)>30){const dir=dx>0?-1:1;const next=Math.max(0,Math.min(4,sel+dir));if(next!==sel)selCard(next);}
+        },{passive:true});
+        fc.addEventListener('click',(e)=>{if(e.target===fc&&sel>=0)cfm();});
         setTimeout(()=>selCard(2),300);
     }
 
     function selCard(i){
         if(drawing||done)return; sel=i;
         document.querySelectorAll('.fan-card').forEach((e,j)=>e.classList.toggle('selected',j===i));
-        hint.textContent=`👉 卡牌 ${i+1} · 双击或握拳抽取`;
+        dots.forEach((d,j)=>d.classList.toggle('active',j===i));
+        hint.textContent=`✦ ${cards[i].n} ✦ 点击「抽取此牌」`;
         hint.classList.add('show');
+        cbtn.classList.add('show');
     }
 
     function cfm(){
-        if(drawing||done||sel<0)return; drawing=true; hint.classList.remove('show');
+        if(drawing||done||sel<0)return; drawing=true;
+        hint.classList.remove('show'); cbtn.classList.remove('show');
         const ch=cards[sel], el=document.querySelectorAll('.fan-card')[sel];
-        document.querySelectorAll('.fan-card').forEach((e,i)=>{if(i!==sel){e.style.transition='all 0.6s ease';e.style.opacity='0';e.style.transform+=' translateY(80px)';}});
+        document.querySelectorAll('.fan-card').forEach((e,i)=>{if(i!==sel){e.style.transition='all 0.5s ease';e.style.opacity='0';e.style.transform+=' translateY(60px)';}});
         const r=el.getBoundingClientRect(), cx1=r.left+r.width/2, cy1=r.top+r.height/2;
-        const cxn=window.innerWidth/2, cyn=window.innerHeight/2-40;
-        el.style.transition='all 0.8s cubic-bezier(0.2,0.8,0.2,1)'; el.style.position='fixed';
+        el.style.transition='all 0.7s cubic-bezier(0.2,0.8,0.2,1)'; el.style.position='fixed';
         el.style.left=cx1+'px'; el.style.top=cy1+'px';
-        el.style.transform='translate(-50%,-50%) scale(1.2) rotate(0deg)'; el.style.zIndex=100;
+        el.style.transform='translate(-50%,-50%) scale(1.15) rotate(0deg)'; el.style.zIndex=100;
         sp(cx1,cy1);
         setTimeout(()=>{
-            el.style.transform='translate(-50%,-50%) scale(1.5) rotateY(180deg)';
+            el.style.transform='translate(-50%,-50%) scale(1.4) rotateY(180deg)';
             el.querySelector('.card-front').style.backfaceVisibility='visible';
             setTimeout(()=>{
                 document.getElementById('rimg').src=ch.img; document.getElementById('rsuit').textContent=ch.s;
                 document.getElementById('rname').textContent=ch.n; document.getElementById('rmeaning').textContent=ch.m;
                 el.style.opacity='0'; rc.classList.add('show','flipped','gold-glow','cbg');
                 document.getElementById('header').style.opacity='0';
-                setTimeout(()=>{pa.style.opacity='1';pa.style.pointerEvents='auto';done=true;},800);
-            },500);
-        },800);
+                setTimeout(()=>{pa.style.opacity='1';pa.style.pointerEvents='auto';done=true;},600);
+            },400);
+        },700);
     }
+    cbtn.addEventListener('click',cfm);
 
     function sp(cx,cy){
-        for(let i=0;i<40;i++){const d=document.createElement('div');d.className='pd';const sz=Math.random()*5+2;
-            d.style.width=sz+'px';d.style.height=sz+'px';const a=Math.random()*Math.PI*2,dist=Math.random()*100+20;
+        for(let i=0;i<30;i++){const d=document.createElement('div');d.className='pd';const sz=Math.random()*4+1.5;
+            d.style.width=sz+'px';d.style.height=sz+'px';const a=Math.random()*Math.PI*2,dist=Math.random()*80+15;
             d.style.left=(cx+Math.cos(a)*dist)+'px';d.style.top=(cy+Math.sin(a)*dist)+'px';
-            d.style.animationDuration=(1.5+Math.random())+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2500);}
+            d.style.animationDuration=(1.2+Math.random())+'s';document.body.appendChild(d);setTimeout(()=>d.remove(),2000);}
     }
 
-    /* ============================================================
-       Gesture Control (MediaPipe Hand Tracking)
-       ============================================================ */
+    /* Gesture */
     const gb=document.getElementById('gesture-btn'), gp=document.getElementById('gesture-panel');
     const gv=document.getElementById('gvideo'), fce=document.getElementById('finger-count');
-    let hm=null, cs=null, gOn=false, fh=0, fDone=false;
+    let hm=null, cs=null, gOn=false, fh=0, fDone=false, mpLoaded=false;
 
     async function loadMP(){
+        if(mpLoaded)return true;
         try{
+            fce.textContent='...';
             const s=document.createElement('script');
             s.src='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm/vision_bundle.js';
             document.head.appendChild(s);
-            await new Promise(r=>s.onload=r);
+            await new Promise((res,rej)=>{s.onload=res;s.onerror=rej;});
             const v=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/wasm/');
             hm=await HandLandmarker.createFromOptions(v,{
                 baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker_full/float16/1/hand_landmarker.task',delegate:'GPU'},
                 runningMode:'VIDEO',numHands:1
             });
+            mpLoaded=true;
             return true;
-        }catch(e){console.warn('MediaPipe load failed:',e);return false;}
+        }catch(e){console.warn('MP fail:',e);fce.textContent='✕';return false;}
     }
 
     async function toggleG(){
         if(cs){cs.getTracks().forEach(t=>t.stop());cs=null;gv.srcObject=null;gp.classList.remove('show');gb.classList.remove('on');gb.textContent='✋';gOn=false;return;}
-        if(!hm){fce.textContent='...';const ok=await loadMP();if(!ok){fce.textContent='✕';return;}}
+        if(!mpLoaded){
+            fce.textContent='载入';
+            const ok=await loadMP();
+            if(!ok){fce.textContent='失败';return;}
+        }
         try{
-            cs=await navigator.mediaDevices.getUserMedia({video:{width:280,height:210,facingMode:'user'}});
-            gv.srcObject=cs;await gv.play();
-            gp.classList.add('show');gb.classList.add('on');gb.textContent='◉';gOn=true;hint.classList.add('show');
+            cs=await navigator.mediaDevices.getUserMedia({video:{width:240,height:180,facingMode:'user'}});
+            gv.srcObject=cs; await gv.play();
+            gp.classList.add('show');gb.classList.add('on');gb.textContent='◉';gOn=true;
+            hint.textContent='✋ 伸出手指选牌 · 握拳抽取';
+            hint.classList.add('show');
             gl();
-        }catch(e){fce.textContent='!';console.warn('Camera denied');}
+        }catch(e){
+            fce.textContent='!';
+            hint.textContent='⚠️ 摄像头被拒 · 请用触屏选牌';
+            hint.classList.add('show');
+            setTimeout(()=>gb.classList.remove('on'),500);
+        }
     }
 
     function gl(){
@@ -261,13 +291,12 @@
                     const lm=r.landmarks[0], cnt=cf(lm);
                     fce.textContent=cnt;
                     if(cnt>=1&&cnt<=5)selCard(cnt-1);
-                    if(cnt===0){fh++;if(fh>8&&!fDone&&sel>=0){fDone=true;cfm();}}else{fh=0;fDone=false;}
+                    if(cnt===0){fh++;if(fh>6&&!fDone&&sel>=0){fDone=true;cfm();}}else{fh=0;fDone=false;}
                 }else{fce.textContent='-';fh=0;}
             }).catch(()=>{});
             requestAnimationFrame(loop);
         })();
     }
-
     function cf(lm){
         const tips=[4,8,12,16,20], pips=[3,6,10,14,18]; let cnt=0;
         const dx=lm[tips[0]].x-lm[pips[0]].x, dy=lm[tips[0]].y-lm[pips[0]].y;
@@ -275,24 +304,22 @@
         for(let i=1;i<5;i++)if(lm[tips[i]].y<lm[pips[i]].y-0.02)cnt++;
         return cnt;
     }
-
     gb.addEventListener('click',toggleG);
     build();
 
     window.svNav=function(){
         if(sel<0)sel=2; const ch=cards[sel]; if(!ch)return;
-        const nameClean = ch.n.replace(' · ',' ');
-        localStorage.setItem('tarotCard',JSON.stringify({img:ch.img,suit:ch.s,name:nameClean,meaning:ch.m}));
+        const idx=pool.indexOf(ch);
+        const eng=idx>=0?engNames[idx]:'';
+        localStorage.setItem('tarotCard',JSON.stringify({img:ch.img,suit:ch.s,name:ch.n+' · '+eng,meaning:ch.m}));
         window.location.href='interpretation.html';
     };
-
     document.addEventListener('keydown',e=>{
         if(done)return;
         if(e.key>='1'&&e.key<='5')selCard(parseInt(e.key)-1);
         if(e.key==='Enter'||e.key===' '){e.preventDefault();cfm();}
     });
-
-    }); // DOMContentLoaded
+    });
     </script>
 </body>
 </html>
